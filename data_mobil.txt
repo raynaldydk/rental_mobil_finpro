@@ -1,0 +1,3 @@
+NamaMobil#PlatNomor#Kapasitas#Transmisi#StatusSewa#
+Toyota#N123N#6#Manual#Ada#
+Honda#N456N#5#Matic#Tidak Ada#
