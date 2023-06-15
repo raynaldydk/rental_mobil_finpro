@@ -1,3 +1,8 @@
-NamaMobil#PlatNomor#Kapasitas#Transmisi#StatusSewa#
-Toyota#N123N#6#Manual#Ada#
-Honda#N456N#5#Matic#Tidak Ada#
+NamaMobil,PlatNomor,Kapasitas,Transmisi,StatusSewa,Harga,
+Toyota Avanza,1221,6,Manual,Ada,254500,
+Daihatsu Xenia,456,6,Manual,Ada,289000,
+Toyota Calya,1831,5,Automatic,Ada,289000,
+Suzuki Ertiga,2229,6,Manual,Ada,313500,
+Toyota Innova,3782,6,Manual,Ada,539000,
+Toyota Hiace,2934,13,Manual,Ada,872000,
+Isuzu Elf,9283,13,Manual,Ada,882000,
