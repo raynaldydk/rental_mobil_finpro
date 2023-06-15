@@ -1,52 +1,202 @@
+// AVL tree implementation in C
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct Inventory{
+// Create Node
+struct Node {
     char nama_mobil[50];
     char plat_no[10];
     int kapasitas;
     char transmisi[10];
-    char _sewa[10];
+    char status_sewa[10];
     int harga;
-    struct Inventory *left;
-    struct Inventory *right;
+    struct Node *left;
+    struct Node *right;
     int height;
 };
 
-struct Inventory* root = NULL;
-
-struct Invoice{
-    int noInvoice;
-    char nama[25];
-    char no_telp[15];
-    char doc[10];
-    int tanggal_sewa;
-    int bulan_sewa;
-    int tahun_sewa;
-    int tanggal_kembali;
-    int bulan_kembali;
-    int tahun_kembali;
-    int harga;
-};
-
-
-struct Inventory* create_node(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga);
-struct Inventory* insert(struct Inventory *root, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga);
-void inorder_traversal(struct Inventory* root);
-struct Inventory* search(struct Inventory* root, char plat_no[]);
-void menu_inventory();
-void readFileCar();
-int get_height(struct Inventory* node);
-int get_balance_factor(struct Inventory* node);
-void update_height(struct Inventory* node);
-struct Inventory* rotate_right(struct Inventory* node);
-struct Inventory* rotate_left(struct Inventory* node);
-struct Inventory* balance_tree(struct Inventory* node);
-struct Inventory* minValueNode(struct Inventory* node);
 int max(int a, int b);
+void menu_inventory(struct Node* root);
 
-int main(){
+// Calculate height
+int height(struct Node *N) {
+    if (N == NULL)
+        return 0;
+    return N->height;
+}
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+// Create a node
+struct Node *newNode(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char status_sewa[], int harga) {
+    struct Node *node = (struct Node *)malloc(sizeof(struct Node));
+    strcpy(node->nama_mobil, nama_mobil);
+    strcpy(node->plat_no, plat_no);
+    node->kapasitas = kapasitas;
+    strcpy(node->transmisi, transmisi);
+    strcpy(node->status_sewa, status_sewa);
+    node->harga = harga;
+    node->left = NULL;
+    node->right = NULL;
+    node->height = 1;
+    return (node);
+}
+
+// Right rotate
+struct Node *rightRotate(struct Node *y) {
+    struct Node *x = y->left;
+    struct Node *T2 = x->right;
+
+    x->right = y;
+    y->left = T2;
+
+    y->height = max(height(y->left), height(y->right)) + 1;
+    x->height = max(height(x->left), height(x->right)) + 1;
+
+    return x;
+}
+
+// Left rotate
+struct Node *leftRotate(struct Node *x) {
+    struct Node *y = x->right;
+    struct Node *T2 = y->left;
+
+    y->left = x;
+    x->right = T2;
+
+    x->height = max(height(x->left), height(x->right)) + 1;
+    y->height = max(height(y->left), height(y->right)) + 1;
+
+    return y;
+}
+
+// Get the balance factor
+int getBalance(struct Node *N) {
+    if (N == NULL)
+        return 0;
+    return height(N->left) - height(N->right);
+}
+
+// Insert node
+struct Node *insertNode(struct Node *node, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char status_sewa[], int harga) {
+    // Find the correct position to insertNode the node and insertNode it
+    if (node == NULL)
+        return (newNode(nama_mobil, plat_no, kapasitas, transmisi, status_sewa, harga));
+
+    if (plat_no < node->plat_no)
+        node->left = insertNode(node->left, nama_mobil, plat_no, kapasitas, transmisi, status_sewa, harga);
+    else if (plat_no > node->plat_no)
+        node->right = insertNode(node->right, nama_mobil, plat_no, kapasitas, transmisi, status_sewa, harga);
+    else
+        return node;
+
+    // Update the balance factor of each node and
+    // Balance the tree
+    node->height = 1 + max(height(node->left),
+                           height(node->right));
+
+    int balance = getBalance(node);
+    if (balance > 1 && plat_no < node->left->plat_no)
+        return rightRotate(node);
+
+    if (balance < -1 && plat_no > node->right->plat_no)
+        return leftRotate(node);
+
+    if (balance > 1 && plat_no > node->left->plat_no) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    if (balance < -1 && plat_no < node->right->plat_no) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    return node;
+}
+
+struct Node *minValueNode(struct Node *node) {
+    struct Node *current = node;
+
+    while (current->left != NULL)
+        current = current->left;
+
+    return current;
+}
+
+// Delete a nodes
+struct Node *deleteNode(struct Node *root, char plat_no[]) {
+    // Find the node and delete it
+    if (root == NULL)
+        return root;
+
+    if (plat_no < root->plat_no)
+        root->left = deleteNode(root->left, plat_no);
+
+    else if (plat_no > root->plat_no)
+        root->right = deleteNode(root->right, plat_no);
+
+    else {
+        if ((root->left == NULL) || (root->right == NULL)) {
+            struct Node *temp = root->left ? root->left : root->right;
+
+            if (temp == NULL) {
+                temp = root;
+                root = NULL;
+            } else
+                *root = *temp;
+            free(temp);
+        } else {
+            struct Node *temp = minValueNode(root->right);
+
+            strcpy(root->plat_no, temp->plat_no);
+
+            root->right = deleteNode(root->right, temp->plat_no);
+        }
+    }
+
+    if (root == NULL)
+        return root;
+
+    // Update the balance factor of each node and
+    // balance the tree
+    root->height = 1 + max(height(root->left),
+                           height(root->right));
+
+    int balance = getBalance(root);
+    if (balance > 1 && getBalance(root->left) >= 0)
+        return rightRotate(root);
+
+    if (balance > 1 && getBalance(root->left) < 0) {
+        root->left = leftRotate(root->left);
+        return rightRotate(root);
+    }
+
+    if (balance < -1 && getBalance(root->right) <= 0)
+        return leftRotate(root);
+
+    if (balance < -1 && getBalance(root->right) > 0) {
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+
+    return root;
+}
+
+void reverse_inorder_traversal(struct Node* root) {
+    if (root != NULL){
+        reverse_inorder_traversal(root->right);
+        printf("| %-20s | %-10s | %-9d | %-9s | %-10s | %-10d |\n", root->nama_mobil, root->plat_no, root->kapasitas, root->transmisi, root->status_sewa, root->harga);
+        reverse_inorder_traversal(root->left);
+    }
+}
+
+int main() {
+    struct Node *root = NULL;
     int main_menu_option;
     do{
         printf("Rental Mobil\n");
@@ -60,7 +210,7 @@ int main(){
         getchar();
         switch (main_menu_option){
             case 1:
-                menu_inventory();
+                menu_inventory(root);
                 break;
             case 2:
                 break;
@@ -77,14 +227,13 @@ int main(){
     return 0;
 }
 
-void menu_inventory(){
-	readFileCar();
+void menu_inventory(struct Node* root){
     int inventory_option;
     char input_nama_mobil[50];
     char input_plat_no[10];
     int input_kapasitas;
     char input_transmisi[10];
-    char input__sewa[10];
+    char input_status_sewa[10];
     int input_harga;
     do{
         printf("Inventory\n");
@@ -112,19 +261,19 @@ void menu_inventory(){
                 scanf("%s", input_transmisi);
                 getchar();
                 printf("Status Mobil: ");
-                scanf("%[^\n]", input__sewa);
+                scanf("%[^\n]", input_status_sewa);
                 getchar();
                 printf("Harga Sewa per Hari: ");
                 scanf("%d", &input_harga);
                 getchar();
-                root = insert(root, input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input__sewa, input_harga);
+                root = insertNode(root, input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input_status_sewa, input_harga);
                 break;
             case 2:
 
                 printf("---------------------------------------------------------------------------------------\n");
                 printf("| Nama Mobil           | Nomor Plat | Kapasitas | Transmisi | Status     | Harga Sewa |\n");
                 printf("---------------------------------------------------------------------------------------\n");
-                inorder_traversal(root);
+                reverse_inorder_traversal(root);
                 printf("---------------------------------------------------------------------------------------\n");
                 system("pause");
                 break;
@@ -141,159 +290,4 @@ void menu_inventory(){
         }
     }while(inventory_option != 0);
 }
-
-void readFileCar(){
-    FILE *fp;
-    fp = fopen("data_mobil.txt", "r+");
-
-    if(fp == NULL){
-        printf("File doesn't exist !!!\n");
-        return;
-    }
-
-    char temp[100];
-    fscanf(fp, "%[^\n]%*c", temp);
-
-    int harga;
-    char nama_mobil[50];
-    char plat_no[10];
-    int kapasitas;
-    char transmisi[10];
-    char _sewa[10];
-
-
-    while(fscanf(fp, "%[^,],%[^,],%d,%[^,],%[^,],%d,\r\n", nama_mobil, plat_no, &kapasitas, transmisi, _sewa, &harga) != EOF){
-        root = insert(root, nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
-    }
-
-    fclose(fp);
-}
-
-struct Inventory* create_node(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga){
-    struct Inventory* new_node = (struct Inventory*) malloc(sizeof(struct Inventory));
-    new_node->left = NULL;
-    new_node->right = NULL;
-    strcpy(new_node->nama_mobil, nama_mobil);
-    strcpy(new_node->plat_no, plat_no);
-    new_node->kapasitas = kapasitas;
-    strcpy(new_node->transmisi, transmisi);
-    strcpy(new_node->_sewa, _sewa);
-    new_node->harga = harga;
-    new_node->height = 1;
-    return new_node;
-}
-
-struct Inventory* insert(struct Inventory *root, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga){
-    if(root == NULL){
-        root = create_node(nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
-        return root;
-    }
-
-    if(plat_no < root->plat_no){
-        root->left = insert(root->left, nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
-    }
-    else if(plat_no > root->plat_no){
-        root->right = insert(root->right, nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
-    }
-    else
-        return root;
-
-    return balance_tree(root);
-}
-
-void inorder_traversal(struct Inventory* root) {
-    if (root == NULL){
-        return;
-    }
-    inorder_traversal(root->left);
-    printf("| %-20s | %-10s | %-9d | %-9s | %-10s | %-10d |\n", root->nama_mobil, root->plat_no, root->kapasitas, root->transmisi, root->_sewa, root->harga);
-    inorder_traversal(root->right);
-}
-
-struct Inventory* search(struct Inventory* root, char plat_no[]){
-    if(root == NULL || strcmp(root->plat_no, plat_no) == 0){
-        return root;
-    }
-
-    if(plat_no < root->plat_no)
-        return search(root->left, plat_no);
-    else
-        return search(root->right, plat_no);
-}
-
-int get_height(struct Inventory* node){
-    if(node == NULL)
-        return 0;
-    return node->height;
-}
-
-int get_balance_factor(struct Inventory* node){
-    if(node == NULL)
-        return 0;
-    return get_height(node->left - get_height(node->right));
-}
-
-void update_height(struct Inventory* node){
-    int left_height = get_height(node->left);
-    int right_height = get_height(node->right);
-    node->height = (left_height > right_height ? left_height : right_height) + 1;
-}
-
-struct Inventory* rotate_right(struct Inventory* node){
-    struct Inventory* new_root = node->left;
-    node->left = new_root->right;
-    new_root->right = node;
-    update_height(node);
-    update_height(new_root);
-    return new_root;
-}
-
-struct Inventory* rotate_left(struct Inventory* node){
-    struct Inventory* new_root = node->right;
-    node->right = new_root->left;
-    new_root->left = node;
-    update_height(node);
-    update_height(new_root);
-    return new_root;
-}
-
-struct Inventory* balance_tree(struct Inventory* node){
-    update_height(node);
-    int balance_factor = get_balance_factor(node);
-
-    // LL Rotation
-    if(balance_factor > 1 && get_balance_factor(node->left) >= 0)
-        return rotate_right(node);
-
-    // RR Rotation
-    if(balance_factor < -1 && get_balance_factor(node->right) <= 0)
-        return rotate_left(node);
-
-    // LR Rotation
-    if(balance_factor > 1 && get_balance_factor(node->left) < 0){
-        node->left = rotate_left(node->left);
-        return rotate_right(node);
-    }
-
-    // RL Rotation
-    if(balance_factor < -1 && get_balance_factor(node->right) > 0){
-        node->right = rotate_right(node->right);
-        return rotate_left(node);
-    }
-
-    return node;
-}
-
-struct Inventory* minValueNode(struct Inventory* node) {
-    struct Inventory* current = node;
-    while (current->left != NULL)
-        current = current->left;
-    return current;
-}
-
-// Function to get the maximum of two integers
-int max(int a, int b) {
-    return (a > b) ? a : b;
-}
-
 
