@@ -19,16 +19,116 @@ struct Node {
 
 int max(int a, int b);
 void menu_inventory(struct Node* root);
+int height(struct Node *N);
+struct Node *newNode(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char status_sewa[], int harga);
+struct Node *rightRotate(struct Node *y);
+struct Node *leftRotate(struct Node *x);
+int getBalance(struct Node *N);
+struct Node *insertNode(struct Node *node, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char status_sewa[], int harga);
+struct Node *minValueNode(struct Node *node);
+struct Node *deleteNode(struct Node *root, char plat_no[]);
+void reverse_inorder_traversal(struct Node* root);
+
+int main() {
+    struct Node *root = NULL;
+    int main_menu_option;
+    do{
+        printf("Rental Mobil\n");
+        printf("============\n");
+        printf("1. Inventory\n");
+        printf("2. Sewa Mobil\n");
+        printf("0. Exit\n");
+        printf("============\n");
+        printf("Input: ");
+        scanf("%d", &main_menu_option);
+        getchar();
+        switch (main_menu_option){
+            case 1:
+                menu_inventory(root);
+                break;
+            case 2:
+                break;
+            case 0:
+                exit(0);
+                break;
+            default:
+                printf("Invalid input!\n");
+                getchar();
+                system("cls");
+                break;
+        }
+    }while(main_menu_option != 0);
+    return 0;
+}
+
+void menu_inventory(struct Node* root){
+    int inventory_option;
+    char input_nama_mobil[50];
+    char input_plat_no[10];
+    int input_kapasitas;
+    char input_transmisi[10];
+    char input_status_sewa[10];
+    int input_harga;
+    do{
+        printf("Inventory\n");
+        printf("=========\n");
+        printf("1. Input\n");
+        printf("2. View Data\n");
+        printf("3. Delete\n");
+        printf("0. Back\n");
+        printf("============\n");
+        printf("Input: ");
+        scanf("%d", &inventory_option);
+        getchar();
+        switch(inventory_option){
+            case 1:
+                printf("Nama Mobil: ");
+                scanf("%[^\n]", input_nama_mobil);
+                getchar();
+                printf("Plat Nomor: ");
+                scanf("%[^\n]", input_plat_no);
+                getchar();
+                printf("Kapasitas Mobil: ");
+                scanf("%d", &input_kapasitas);
+                getchar();
+                printf("Transmisi Mobil: ");
+                scanf("%s", input_transmisi);
+                getchar();
+                printf("Status Mobil: ");
+                scanf("%[^\n]", input_status_sewa);
+                getchar();
+                printf("Harga Sewa per Hari: ");
+                scanf("%d", &input_harga);
+                getchar();
+                root = insertNode(root, input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input_status_sewa, input_harga);
+                break;
+            case 2:
+                printf("---------------------------------------------------------------------------------------\n");
+                printf("| Nama Mobil           | Nomor Plat | Kapasitas | Transmisi | Status     | Harga Sewa |\n");
+                printf("---------------------------------------------------------------------------------------\n");
+                reverse_inorder_traversal(root);
+                printf("---------------------------------------------------------------------------------------\n");
+                system("pause");
+                break;
+            case 3:
+                break;
+            case 0:
+                main();
+                break;
+            default:
+                printf("Invalid input!\n");
+                getchar();
+                system("cls");
+                break;
+        }
+    }while(inventory_option != 0);
+}
 
 // Calculate height
 int height(struct Node *N) {
     if (N == NULL)
         return 0;
     return N->height;
-}
-
-int max(int a, int b) {
-    return (a > b) ? a : b;
 }
 
 // Create a node
@@ -44,6 +144,10 @@ struct Node *newNode(char nama_mobil[], char plat_no[], int kapasitas, char tran
     node->right = NULL;
     node->height = 1;
     return (node);
+}
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
 }
 
 // Right rotate
@@ -193,101 +297,5 @@ void reverse_inorder_traversal(struct Node* root) {
         printf("| %-20s | %-10s | %-9d | %-9s | %-10s | %-10d |\n", root->nama_mobil, root->plat_no, root->kapasitas, root->transmisi, root->status_sewa, root->harga);
         reverse_inorder_traversal(root->left);
     }
-}
-
-int main() {
-    struct Node *root = NULL;
-    int main_menu_option;
-    do{
-        printf("Rental Mobil\n");
-        printf("============\n");
-        printf("1. Inventory\n");
-        printf("2. Sewa Mobil\n");
-        printf("0. Exit\n");
-        printf("============\n");
-        printf("Input: ");
-        scanf("%d", &main_menu_option);
-        getchar();
-        switch (main_menu_option){
-            case 1:
-                menu_inventory(root);
-                break;
-            case 2:
-                break;
-            case 0:
-                exit(0);
-                break;
-            default:
-                printf("Invalid input!\n");
-                getchar();
-                system("cls");
-                break;
-        }
-    }while(main_menu_option != 0);
-    return 0;
-}
-
-void menu_inventory(struct Node* root){
-    int inventory_option;
-    char input_nama_mobil[50];
-    char input_plat_no[10];
-    int input_kapasitas;
-    char input_transmisi[10];
-    char input_status_sewa[10];
-    int input_harga;
-    do{
-        printf("Inventory\n");
-        printf("=========\n");
-        printf("1. Input\n");
-        printf("2. View Data\n");
-        printf("3. Delete\n");
-        printf("0. Back\n");
-        printf("============\n");
-        printf("Input: ");
-        scanf("%d", &inventory_option);
-        getchar();
-        switch(inventory_option){
-            case 1:
-                printf("Nama Mobil: ");
-                scanf("%[^\n]", input_nama_mobil);
-                getchar();
-                printf("Plat Nomor: ");
-                scanf("%[^\n]", input_plat_no);
-                getchar();
-                printf("Kapasitas Mobil: ");
-                scanf("%d", &input_kapasitas);
-                getchar();
-                printf("Transmisi Mobil: ");
-                scanf("%s", input_transmisi);
-                getchar();
-                printf("Status Mobil: ");
-                scanf("%[^\n]", input_status_sewa);
-                getchar();
-                printf("Harga Sewa per Hari: ");
-                scanf("%d", &input_harga);
-                getchar();
-                root = insertNode(root, input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input_status_sewa, input_harga);
-                break;
-            case 2:
-
-                printf("---------------------------------------------------------------------------------------\n");
-                printf("| Nama Mobil           | Nomor Plat | Kapasitas | Transmisi | Status     | Harga Sewa |\n");
-                printf("---------------------------------------------------------------------------------------\n");
-                reverse_inorder_traversal(root);
-                printf("---------------------------------------------------------------------------------------\n");
-                system("pause");
-                break;
-            case 3:
-                break;
-            case 0:
-                main();
-                break;
-            default:
-                printf("Invalid input!\n");
-                getchar();
-                system("cls");
-                break;
-        }
-    }while(inventory_option != 0);
 }
 
