@@ -8,6 +8,7 @@ struct Inventory{
     int kapasitas;
     char transmisi[10];
     char _sewa[10];
+    int harga;
     struct Inventory *left;
     struct Inventory *right;
     int height;
@@ -30,8 +31,8 @@ struct Invoice{
 };
 
 
-struct Inventory* create_node(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[]);
-struct Inventory* insert(struct Inventory *root, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[]);
+struct Inventory* create_node(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga);
+struct Inventory* insert(struct Inventory *root, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga);
 void inorder_traversal(struct Inventory* root);
 struct Inventory* search(struct Inventory* root, char plat_no[]);
 void menu_inventory();
@@ -84,6 +85,7 @@ void menu_inventory(){
     int input_kapasitas;
     char input_transmisi[10];
     char input__sewa[10];
+    int input_harga;
     do{
         printf("Inventory\n");
         printf("=========\n");
@@ -109,19 +111,21 @@ void menu_inventory(){
                 printf("Transmisi Mobil: ");
                 scanf("%s", input_transmisi);
                 getchar();
-                printf(" Mobil: ");
+                printf("Status Mobil: ");
                 scanf("%[^\n]", input__sewa);
                 getchar();
-                root = insert(root, input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input__sewa);
+                printf("Harga Sewa per Hari: ");
+                scanf("%d", &input_harga);
+                getchar();
+                root = insert(root, input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input__sewa, input_harga);
                 break;
             case 2:
-                
-                printf("----------------------------------------------------------------\n");
-                printf("| Nama Mobil | Nomor Plat | Kapasitas | Transmisi | Status     |\n");
-                printf("----------------------------------------------------------------\n");
-//                readFileCar();
+
+                printf("---------------------------------------------------------------------------------------\n");
+                printf("| Nama Mobil           | Nomor Plat | Kapasitas | Transmisi | Status     | Harga Sewa |\n");
+                printf("---------------------------------------------------------------------------------------\n");
                 inorder_traversal(root);
-                printf("----------------------------------------------------------------\n");
+                printf("---------------------------------------------------------------------------------------\n");
                 system("pause");
                 break;
             case 3:
@@ -149,22 +153,23 @@ void readFileCar(){
 
     char temp[100];
     fscanf(fp, "%[^\n]%*c", temp);
-	
 
+    int harga;
     char nama_mobil[50];
     char plat_no[10];
     int kapasitas;
     char transmisi[10];
     char _sewa[10];
 
-    while(fscanf(fp, "%[^#]#%[^#]#%d#%[^#]#%[^#]#\r\n", nama_mobil, plat_no, &kapasitas, transmisi, _sewa) != EOF){
-        root = insert(root, nama_mobil, plat_no, kapasitas, transmisi, _sewa);        
+
+    while(fscanf(fp, "%[^,],%[^,],%d,%[^,],%[^,],%d,\r\n", nama_mobil, plat_no, &kapasitas, transmisi, _sewa, &harga) != EOF){
+        root = insert(root, nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
     }
 
     fclose(fp);
 }
 
-struct Inventory* create_node(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[]){
+struct Inventory* create_node(char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga){
     struct Inventory* new_node = (struct Inventory*) malloc(sizeof(struct Inventory));
     new_node->left = NULL;
     new_node->right = NULL;
@@ -173,21 +178,22 @@ struct Inventory* create_node(char nama_mobil[], char plat_no[], int kapasitas, 
     new_node->kapasitas = kapasitas;
     strcpy(new_node->transmisi, transmisi);
     strcpy(new_node->_sewa, _sewa);
+    new_node->harga = harga;
     new_node->height = 1;
     return new_node;
 }
 
-struct Inventory* insert(struct Inventory *root, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[]){
+struct Inventory* insert(struct Inventory *root, char nama_mobil[], char plat_no[], int kapasitas, char transmisi[], char _sewa[], int harga){
     if(root == NULL){
-        root = create_node(nama_mobil, plat_no, kapasitas, transmisi, _sewa);
+        root = create_node(nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
         return root;
     }
 
     if(plat_no < root->plat_no){
-        root->left = insert(root->left, nama_mobil, plat_no, kapasitas, transmisi, _sewa);
+        root->left = insert(root->left, nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
     }
     else if(plat_no > root->plat_no){
-        root->right = insert(root->right, nama_mobil, plat_no, kapasitas, transmisi, _sewa);
+        root->right = insert(root->right, nama_mobil, plat_no, kapasitas, transmisi, _sewa, harga);
     }
     else
         return root;
@@ -200,7 +206,7 @@ void inorder_traversal(struct Inventory* root) {
         return;
     }
     inorder_traversal(root->left);
-    printf("| %-10s | %-10s | %-9d | %-9s | %-10s |\n", root->nama_mobil, root->plat_no, root->kapasitas, root->transmisi, root->_sewa);
+    printf("| %-20s | %-10s | %-9d | %-9s | %-10s | %-10d |\n", root->nama_mobil, root->plat_no, root->kapasitas, root->transmisi, root->_sewa, root->harga);
     inorder_traversal(root->right);
 }
 
