@@ -138,6 +138,10 @@ void menu_inventory(struct Node* root){
                 scanf("%d", &input_harga);
                 getchar();
                 root = insertNode(root, input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input_status_sewa, input_harga);
+
+                FILE *fp = fopen("data_mobil.txt", "a");
+                fprintf(fp, "%s, %s, %d, %s, %s, %d\n", input_nama_mobil, input_plat_no, input_kapasitas, input_transmisi, input_status_sewa, input_harga);
+                fclose(fp);
                 break;
             case 2:
             if(root == NULL){
@@ -700,5 +704,4 @@ void print_receipt(int input_noInvoice, struct Node* root, char input_plat_no_se
     printf("Tanggal Kembali: %s\n", input_tgl_kembali);
     printf("Total Harga Sewa: %d\n", input_totalHarga);
     printf("==================================================\n");
-    system("pause");
 }
